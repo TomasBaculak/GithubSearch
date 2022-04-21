@@ -144,10 +144,6 @@ class TrendingRepoListViewModel {
             .bind(to: isDataAvailable)
             .disposed(by: disposeBag)
         
-        let failureMessage = state
-            .map { $0.failure?.errorDescription }
-            .unwrap()
-        
         isReloadVisible = state
             .map { $0.isReloadVisible }
             .distinctUntilChanged()
@@ -158,8 +154,14 @@ class TrendingRepoListViewModel {
             .disposed(by: disposeBag)
 
         let errors = Observable
-            .merge(request.errors().map { $0.localizedDescription },
-                   failureMessage)
+            .merge(
+                request
+                    .errors()
+                    .map { $0.localizedDescription },
+                state
+                    .map { $0.failure?.errorDescription }
+                    .unwrap()
+            )
         errors
             .bind(to: context.showMessage)
             .disposed(by: disposeBag)
